@@ -1,7 +1,7 @@
 ﻿<Window x:Class="HopeFileLocker.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="HopeFileLocker · 文件隐私保护工具" Height="720" Width="1100"
+        Title="HopeFileLocker · 文件隐私保护工具" Height="720" Width="1180"
         WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <Style x:Key="PrimaryButton" TargetType="Button">
@@ -84,18 +84,27 @@
                   BorderThickness="1" BorderBrush="#E6E9EF">
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="文件夹路径" Width="560" DisplayMemberBinding="{Binding Path}"/>
-                    <GridViewColumn Header="状态" Width="200" DisplayMemberBinding="{Binding DisplayStatus}"/>
-                    <GridViewColumn Header="操作" Width="280">
+                    <GridViewColumn Header="选择" Width="56">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="文件夹路径" Width="540" DisplayMemberBinding="{Binding Path}"/>
+                    <GridViewColumn Header="状态" Width="180" DisplayMemberBinding="{Binding DisplayStatus}"/>
+                    <GridViewColumn Header="操作" Width="320">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
                                     <Button Content="打开" Style="{StaticResource RowButton}"
                                             Click="OpenBtn_Click" Tag="{Binding}"/>
-                                    <Button Content="隐藏/显示" Style="{StaticResource RowButton}"
+                                    <Button Content="{Binding HideActionText}" Style="{StaticResource RowButton}"
                                             Margin="6,0,0,0" Click="RowToggleHide_Click" Tag="{Binding}"/>
-                                    <Button Content="加密/解密" Style="{StaticResource RowButton}"
+                                    <Button Content="{Binding EncActionText}" Style="{StaticResource RowButton}"
                                             Margin="6,0,0,0" Click="RowToggleEnc_Click" Tag="{Binding}"/>
+                                    <Button Content="移除" Style="{StaticResource RowButton}"
+                                            Margin="6,0,0,0" Click="RowRemove_Click" Tag="{Binding}"/>
                                 </StackPanel>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
@@ -110,5 +119,36 @@
                 <TextBlock x:Name="StatusText" Text="共 0 个文件夹" Foreground="#6B7280" FontSize="12"/>
             </StatusBarItem>
         </StatusBar>
+
+        <!-- 忙碌遮罩 + 转圈 -->
+        <Grid x:Name="BusyOverlay" Grid.Row="0" Grid.RowSpan="4" Background="#BFFFFFFF"
+              Visibility="Collapsed" Panel.ZIndex="10">
+            <Grid.Resources>
+                <Storyboard x:Key="SpinStoryboard" RepeatBehavior="Forever">
+                    <DoubleAnimation Storyboard.TargetName="SpinnerRotate"
+                                     Storyboard.TargetProperty="Angle"
+                                     From="0" To="360" Duration="0:0:0.9"/>
+                </Storyboard>
+            </Grid.Resources>
+            <Border Background="White" CornerRadius="12" Padding="28,24"
+                    HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Border.Effect>
+                    <DropShadowEffect ShadowDepth="4" BlurRadius="16" Opacity="0.18" Color="#1F2A3D"/>
+                </Border.Effect>
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                    <Grid Width="46" Height="46" HorizontalAlignment="Center">
+                        <Ellipse Width="46" Height="46" Stroke="#DCE4F2" StrokeThickness="4"/>
+                        <Ellipse Width="46" Height="46" Stroke="#1A5FD0" StrokeThickness="4"
+                                 StrokeDashArray="34 120" RenderTransformOrigin="0.5,0.5">
+                            <Ellipse.RenderTransform>
+                                <RotateTransform x:Name="SpinnerRotate"/>
+                            </Ellipse.RenderTransform>
+                        </Ellipse>
+                    </Grid>
+                    <TextBlock x:Name="BusyText" Text="处理中…" Margin="0,14,0,0"
+                               Foreground="#1F2A3D" FontSize="14" HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+        </Grid>
     </Grid>
 </Window>
