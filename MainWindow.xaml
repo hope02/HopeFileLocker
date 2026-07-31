@@ -1,0 +1,114 @@
+﻿<Window x:Class="HopeFileLocker.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="HopeFileLocker · 文件隐私保护工具" Height="720" Width="1100"
+        WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <Style x:Key="PrimaryButton" TargetType="Button">
+            <Setter Property="Background" Value="#1A5FD0"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="16,9"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="DefaultButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#1A5FD0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#C9D5EC"/>
+        </Style>
+        <Style x:Key="RowButton" TargetType="Button">
+            <Setter Property="Background" Value="#EEF3FB"/>
+            <Setter Property="Foreground" Value="#1A5FD0"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="10,4"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 标题栏 -->
+        <Border Grid.Row="0" Background="#014DB2" Padding="20,14">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="HopeFileLocker" Foreground="White" FontSize="18" FontWeight="Bold"/>
+                <TextBlock Text="文件隐私保护工具" Foreground="#C9DCF5" FontSize="13"
+                           Margin="10,0,0,0" VerticalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
+        <!-- 工具栏 -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="16,14">
+            <Button x:Name="AddBtn" Content="添加文件夹" Style="{StaticResource PrimaryButton}" Click="AddBtn_Click"/>
+            <Button x:Name="ToggleHideBtn" Content="隐藏 / 显示" Style="{StaticResource DefaultButton}"
+                    Margin="10,0,0,0" Click="ToggleHideBtn_Click"/>
+            <Button x:Name="ToggleEncBtn" Content="加密 / 解密" Style="{StaticResource DefaultButton}"
+                    Margin="10,0,0,0" Click="ToggleEncBtn_Click"/>
+            <Button x:Name="RemoveBtn" Content="移除" Style="{StaticResource DefaultButton}"
+                    Margin="10,0,0,0" Click="RemoveBtn_Click"/>
+        </StackPanel>
+
+        <!-- 列表 -->
+        <ListView Grid.Row="2" x:Name="FolderList" Margin="16,0" SelectionMode="Extended"
+                  BorderThickness="1" BorderBrush="#E6E9EF">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="文件夹路径" Width="560" DisplayMemberBinding="{Binding Path}"/>
+                    <GridViewColumn Header="状态" Width="200" DisplayMemberBinding="{Binding DisplayStatus}"/>
+                    <GridViewColumn Header="操作" Width="280">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="打开" Style="{StaticResource RowButton}"
+                                            Click="OpenBtn_Click" Tag="{Binding}"/>
+                                    <Button Content="隐藏/显示" Style="{StaticResource RowButton}"
+                                            Margin="6,0,0,0" Click="RowToggleHide_Click" Tag="{Binding}"/>
+                                    <Button Content="加密/解密" Style="{StaticResource RowButton}"
+                                            Margin="6,0,0,0" Click="RowToggleEnc_Click" Tag="{Binding}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+        <!-- 状态栏 -->
+        <StatusBar Grid.Row="3" Background="#F4F6FB">
+            <StatusBarItem>
+                <TextBlock x:Name="StatusText" Text="共 0 个文件夹" Foreground="#6B7280" FontSize="12"/>
+            </StatusBarItem>
+        </StatusBar>
+    </Grid>
+</Window>

@@ -1,0 +1,18 @@
+# Build output
+bin/
+obj/
+
+# Visual Studio / Rider
+.vs/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# WorkBuddy project memory (local only)
+.workbuddy/
+
+# OS files
+Thumbs.db
+Desktop.ini
