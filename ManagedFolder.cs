@@ -9,6 +9,9 @@ public class ManagedFolder : INotifyPropertyChanged
 {
     public string Path { get; set; } = string.Empty;
 
+    /// <summary>true 表示这是一个文件（而非文件夹）。</summary>
+    public bool IsFile { get; set; }
+
     private bool _isChecked;
     public bool IsChecked
     {

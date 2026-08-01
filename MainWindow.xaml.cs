@@ -186,8 +186,39 @@ public partial class MainWindow : Window
 
     private void OpenBtn_Click(object sender, RoutedEventArgs e)
     {
-        if ((sender as Button)?.Tag is ManagedFolder f && Directory.Exists(f.Path))
+        if ((sender as Button)?.Tag is not ManagedFolder f) return;
+        if (f.IsFile && File.Exists(f.Path))
+            Process.Start("explorer.exe", $"/select,\"{f.Path}\"");
+        else if (Directory.Exists(f.Path))
             Process.Start("explorer.exe", f.Path);
+    }
+
+    private void FolderList_DragOver(object sender, DragEventArgs e)
+    {
+        e.Effects = e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.Copy : DragDropEffects.None;
+        e.Handled = true;
+    }
+
+    private void FolderList_Drop(object sender, DragEventArgs e)
+    {
+        if (!e.Data.GetDataPresent(DataFormats.FileDrop)) return;
+        var paths = (string[])e.Data.GetData(DataFormats.FileDrop)!;
+        var added = 0;
+        foreach (var p in paths)
+        {
+            if (string.IsNullOrWhiteSpace(p) || Folders.Any(f => f.Path == p)) continue;
+            if (!Directory.Exists(p) && !File.Exists(p)) continue;
+
+            Folders.Add(new ManagedFolder
+            {
+                Path = p,
+                IsFile = File.Exists(p),
+                IsHidden = FileHider.IsHidden(p),
+                IsEncrypted = FolderCrypto.IsEncrypted(p)
+            });
+            added++;
+        }
+        if (added > 0) RefreshAll();
     }
 
     private void RowToggleHide_Click(object sender, RoutedEventArgs e)

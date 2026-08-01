@@ -45,6 +45,10 @@
                     </Button.Template>
                 </Button>
 
+                <Button x:Name="ForgotBtn" Content="忘记密码？" Click="Forgot_Click" Margin="0,10,0,0"
+                        Background="Transparent" Foreground="#1A5FD0" FontSize="12"
+                        BorderThickness="0" Cursor="Hand" HorizontalAlignment="Center"/>
+
                 <TextBlock x:Name="HintText" FontSize="12" Foreground="#9AA3AF" HorizontalAlignment="Center"
                            Margin="0,16,0,0" TextWrapping="Wrap" Text="请输入登录密码。"/>
             </StackPanel>

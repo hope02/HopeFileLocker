@@ -81,7 +81,8 @@
 
         <!-- 列表 -->
         <ListView Grid.Row="2" x:Name="FolderList" Margin="16,0" SelectionMode="Extended"
-                  BorderThickness="1" BorderBrush="#E6E9EF">
+                  BorderThickness="1" BorderBrush="#E6E9EF"
+                  AllowDrop="True" PreviewDragOver="FolderList_DragOver" Drop="FolderList_Drop">
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="选择" Width="56">
