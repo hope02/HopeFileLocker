@@ -6,6 +6,12 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- 作为 WPF 资源嵌入程序集，供 XAML 的 Icon="Assets/app.ico" 通过 pack URI 解析 -->
+    <Resource Include="Assets\app.ico" />
+  </ItemGroup>
 
 </Project>

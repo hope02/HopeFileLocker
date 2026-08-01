@@ -21,3 +21,6 @@ Desktop.ini
 /publish/
 /installer-output/
 /*.zip
+
+# AI 生成的原始图标（最终用 Assets/app.ico，源 PNG 不入库）
+/generated-images/

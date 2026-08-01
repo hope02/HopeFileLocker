@@ -1,7 +1,7 @@
 <Window x:Class="HopeFileLocker.LoginWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="HopeFileLocker" Height="520" Width="400"
+        Title="HopeFileLocker" Height="520" Width="400" Icon="Assets/app.ico"
         WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
     <Grid Background="#F4F6FB">
         <Border Width="340" Height="430" VerticalAlignment="Center" HorizontalAlignment="Center"
