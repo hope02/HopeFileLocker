@@ -10,16 +10,26 @@ public partial class LoginWindow : Window
     {
         InitializeComponent();
         PwdBox.KeyDown += (_, e) => { if (e.Key == Key.Enter) TryLogin(); };
-
-        if (!SecurityHelper.HasPassword)
-        {
-            HintText.Text = "首次使用：输入任意密码即设为登录密码，并会生成救援码。";
-        }
-        else
-        {
-            HintText.Text = "请输入登录密码以解锁主界面。";
-        }
+        ApplyLocalization();
+        Lang.Changed += () => ApplyLocalization();
     }
+
+    private void ApplyLocalization()
+    {
+        BrandSub.Text = Lang.T("brandSub");
+        PwdLabel.Text = Lang.T("loginPwd");
+        LoginBtn.Content = Lang.T("loginBtn");
+        ForgotBtn.Content = Lang.T("loginForgot");
+        LangLabel.Text = Lang.T("langLabel");
+        LangZh.IsChecked = Lang.Current == LangCode.Zh;
+        LangEn.IsChecked = Lang.Current == LangCode.En;
+        HintText.Text = SecurityHelper.HasPassword
+            ? Lang.T("loginHintNormal")
+            : Lang.T("loginHintFirst");
+    }
+
+    private void LangZh_Checked(object sender, RoutedEventArgs e) => Lang.Set(LangCode.Zh);
+    private void LangEn_Checked(object sender, RoutedEventArgs e) => Lang.Set(LangCode.En);
 
     private void Login_Click(object sender, RoutedEventArgs e) => TryLogin();
 
@@ -27,7 +37,7 @@ public partial class LoginWindow : Window
     {
         if (!SecurityHelper.HasPassword)
         {
-            ErrorText.Text = "本机尚未设置密码，请直接输入密码登录。";
+            ErrorText.Text = Lang.T("loginErrNoPwd");
             return;
         }
 
@@ -35,7 +45,7 @@ public partial class LoginWindow : Window
         if (dlg.ShowDialog() != true || !dlg.Success) return;
 
         Session.Password = dlg.RecoveredPassword!;
-        ShowRescueCode(dlg.NewRescueCode!, "密码已找回！请保存这串新的救援码（旧的可能会失效）：");
+        ShowRescueCode(dlg.NewRescueCode!, Lang.T("rescueTipRecovered"));
         OpenMain();
     }
 
@@ -44,7 +54,7 @@ public partial class LoginWindow : Window
         var pw = PwdBox.Password;
         if (string.IsNullOrEmpty(pw))
         {
-            ErrorText.Text = "请输入密码。";
+            ErrorText.Text = Lang.T("loginErrEmpty");
             return;
         }
 
@@ -52,7 +62,7 @@ public partial class LoginWindow : Window
         {
             var rescue = SecurityHelper.Setup(pw);
             Session.Password = pw;
-            ShowRescueCode(rescue, "请保存你的救援码：忘记密码时凭它找回，且已加密的文件不会丢失。");
+            ShowRescueCode(rescue, Lang.T("rescueTipFirst"));
             OpenMain();
             return;
         }
@@ -64,7 +74,7 @@ public partial class LoginWindow : Window
         }
         else
         {
-            ErrorText.Text = "密码错误，请重试。";
+            ErrorText.Text = Lang.T("loginErrWrong");
             PwdBox.Clear();
         }
     }

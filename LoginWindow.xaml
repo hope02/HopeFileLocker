@@ -4,7 +4,7 @@
         Title="HopeFileLocker" Height="520" Width="400" Icon="Assets/app.ico"
         WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
     <Grid Background="#F4F6FB">
-        <Border Width="340" Height="430" VerticalAlignment="Center" HorizontalAlignment="Center"
+        <Border Width="340" Height="450" VerticalAlignment="Center" HorizontalAlignment="Center"
                 Background="White" CornerRadius="16" Padding="32">
             <Border.Effect>
                 <DropShadowEffect BlurRadius="16" ShadowDepth="4" Color="#0F1419" Opacity="0.10"/>
@@ -24,16 +24,16 @@
 
                 <TextBlock Text="HopeFileLocker" FontSize="22" FontWeight="Bold" Foreground="#0F1B2D"
                            HorizontalAlignment="Center" Margin="0,18,0,0"/>
-                <TextBlock Text="文件隐私保护工具" FontSize="13" Foreground="#6B7280"
+                <TextBlock x:Name="BrandSub" Text="文件隐私保护工具" FontSize="13" Foreground="#6B7280"
                            HorizontalAlignment="Center" Margin="0,4,0,0"/>
 
-                <TextBlock Text="密码" FontSize="13" Foreground="#6B7280" Margin="0,24,0,6"/>
+                <TextBlock x:Name="PwdLabel" Text="密码" FontSize="13" Foreground="#6B7280" Margin="0,24,0,6"/>
                 <PasswordBox x:Name="PwdBox" FontSize="14" Padding="10"
                              BorderBrush="#E6E9EF" BorderThickness="1" Background="#F4F6FB"/>
                 <TextBlock x:Name="ErrorText" Foreground="#EF4444" FontSize="12" Margin="0,8,0,0"
                            TextWrapping="Wrap"/>
 
-                <Button Content="登 录" Click="Login_Click" Margin="0,14,0,0"
+                <Button x:Name="LoginBtn" Content="登 录" Click="Login_Click" Margin="0,14,0,0"
                         Background="#1A5FD0" Foreground="White" FontSize="15" FontWeight="SemiBold"
                         BorderThickness="0" Cursor="Hand" Height="44">
                     <Button.Template>
@@ -51,6 +51,15 @@
 
                 <TextBlock x:Name="HintText" FontSize="12" Foreground="#9AA3AF" HorizontalAlignment="Center"
                            Margin="0,16,0,0" TextWrapping="Wrap" Text="请输入登录密码。"/>
+
+                <!-- 语言选择 -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0">
+                    <TextBlock x:Name="LangLabel" FontSize="12" Foreground="#9AA3AF" VerticalAlignment="Center"/>
+                    <RadioButton x:Name="LangZh" Content="中文" GroupName="LangGrp" Margin="10,0,0,0"
+                                 Checked="LangZh_Checked"/>
+                    <RadioButton x:Name="LangEn" Content="English" GroupName="LangGrp" Margin="8,0,0,0"
+                                 Checked="LangEn_Checked"/>
+                </StackPanel>
             </StackPanel>
         </Border>
     </Grid>

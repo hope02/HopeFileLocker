@@ -63,7 +63,7 @@
         <Border Grid.Row="0" Background="#014DB2" Padding="20,14">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <TextBlock Text="HopeFileLocker" Foreground="White" FontSize="18" FontWeight="Bold"/>
-                <TextBlock Text="文件隐私保护工具" Foreground="#C9DCF5" FontSize="13"
+                <TextBlock x:Name="BrandSub" Text="文件隐私保护工具" Foreground="#C9DCF5" FontSize="13"
                            Margin="10,0,0,0" VerticalAlignment="Center"/>
             </StackPanel>
         </Border>
@@ -85,26 +85,26 @@
                   AllowDrop="True" PreviewDragOver="FolderList_DragOver" Drop="FolderList_Drop">
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="选择" Width="56">
+                    <GridViewColumn x:Name="ColSelect" Header="选择" Width="56">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="文件夹路径" Width="540" DisplayMemberBinding="{Binding Path}"/>
-                    <GridViewColumn Header="状态" Width="180" DisplayMemberBinding="{Binding DisplayStatus}"/>
-                    <GridViewColumn Header="操作" Width="320">
+                    <GridViewColumn x:Name="ColPath" Header="文件夹路径" Width="540" DisplayMemberBinding="{Binding Path}"/>
+                    <GridViewColumn x:Name="ColStatus" Header="状态" Width="180" DisplayMemberBinding="{Binding DisplayStatus}"/>
+                    <GridViewColumn x:Name="ColActions" Header="操作" Width="320">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
-                                    <Button Content="打开" Style="{StaticResource RowButton}"
+                                    <Button Content="{Binding OpenLabel}" Style="{StaticResource RowButton}"
                                             Click="OpenBtn_Click" Tag="{Binding}"/>
                                     <Button Content="{Binding HideActionText}" Style="{StaticResource RowButton}"
                                             Margin="6,0,0,0" Click="RowToggleHide_Click" Tag="{Binding}"/>
                                     <Button Content="{Binding EncActionText}" Style="{StaticResource RowButton}"
                                             Margin="6,0,0,0" Click="RowToggleEnc_Click" Tag="{Binding}"/>
-                                    <Button Content="移除" Style="{StaticResource RowButton}"
+                                    <Button Content="{Binding RemoveLabel}" Style="{StaticResource RowButton}"
                                             Margin="6,0,0,0" Click="RowRemove_Click" Tag="{Binding}"/>
                                 </StackPanel>
                             </DataTemplate>

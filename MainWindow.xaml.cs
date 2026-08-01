@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -15,34 +16,55 @@ public partial class MainWindow : Window
     public ObservableCollection<ManagedFolder> Folders { get; } = new();
 
     private readonly Progress<FolderCrypto.ProgressInfo> _cryptoProgress;
-    private string _cryptoMode = "加密";
+    private string _busyKey = "busyEncrypt";
 
     public MainWindow()
     {
         InitializeComponent();
         FolderList.ItemsSource = Folders;
+        LoadFolders();
         _cryptoProgress = new Progress<FolderCrypto.ProgressInfo>(OnCryptoProgress);
+        ApplyLocalization();
+        Lang.Changed += () => ApplyLocalization();
+        Closing += (_, _) => SaveFolders();
+        UpdateStatus();
+    }
+
+    private void ApplyLocalization()
+    {
+        Title = Lang.T("appTitle");
+        BrandSub.Text = Lang.T("brandSub");
+        AddBtn.Content = Lang.T("mainAdd");
+        ToggleHideBtn.Content = Lang.T("mainToggleHide");
+        ToggleEncBtn.Content = Lang.T("mainToggleEnc");
+        RemoveBtn.Content = Lang.T("mainRemove");
+        ColSelect.Header = Lang.T("colSelect");
+        ColPath.Header = Lang.T("colPath");
+        ColStatus.Header = Lang.T("colStatus");
+        ColActions.Header = Lang.T("colActions");
+        foreach (var f in Folders) f.NotifyLanguageChanged();
         UpdateStatus();
     }
 
     private void AddBtn_Click(object sender, RoutedEventArgs e)
     {
-        var dlg = new Microsoft.Win32.OpenFolderDialog { Title = "选择要管理的文件夹" };
+        var dlg = new Microsoft.Win32.OpenFolderDialog { Title = Lang.T("dlgSelectFolder") };
         if (dlg.ShowDialog() != true) return;
 
         var path = dlg.FolderName;
         if (Folders.Any(f => f.Path == path))
         {
-            MessageBox.Show("该文件夹已在列表中。");
+            MessageBox.Show(Lang.T("msgInList"));
             return;
         }
 
-        Folders.Add(new ManagedFolder
-        {
-            Path = path,
-            IsHidden = FileHider.IsHidden(path),
-            IsEncrypted = FolderCrypto.IsEncrypted(path)
-        });
+            Folders.Add(new ManagedFolder
+            {
+                Path = path,
+                IsHidden = FileHider.IsHidden(path),
+                IsEncrypted = FolderCrypto.IsEncrypted(path)
+            });
+        SaveFolders();
         UpdateStatus();
     }
 
@@ -61,7 +83,7 @@ public partial class MainWindow : Window
             }
             catch (System.Exception ex)
             {
-                MessageBox.Show($"操作失败：{f.Path}\n{ex.Message}");
+                MessageBox.Show($"{f.Path}\n{ex.Message}");
             }
         }
         RefreshAll();
@@ -74,18 +96,18 @@ public partial class MainWindow : Window
 
         if (string.IsNullOrEmpty(Session.Password))
         {
-            MessageBox.Show("会话密码缺失，请重新登录。");
+            MessageBox.Show(Lang.T("msgNoSession"));
             return;
         }
 
-        ShowBusy("正在加密…");
+        ShowBusy("busyEncrypt");
         try
         {
             await Task.Run(() =>
             {
                 foreach (var f in targets)
                 {
-                    _cryptoMode = f.IsEncrypted ? "解密" : "加密";
+                    _busyKey = f.IsEncrypted ? "busyDecrypt" : "busyEncrypt";
                     if (f.IsEncrypted) FolderCrypto.Decrypt(f.Path, Session.Password, _cryptoProgress);
                     else FolderCrypto.Encrypt(f.Path, Session.Password, _cryptoProgress);
                 }
@@ -94,7 +116,7 @@ public partial class MainWindow : Window
         }
         catch (System.Exception ex)
         {
-            MessageBox.Show($"加密/解密失败：{ex.Message}");
+            MessageBox.Show(string.Format(Lang.T("msgCryptoFail"), ex.Message));
         }
         finally
         {
@@ -107,7 +129,7 @@ public partial class MainWindow : Window
         var targets = GetTargets();
         if (targets.Count == 0) return;
 
-        ShowBusy("正在恢复并移除…");
+        ShowBusy("busyRestore");
         try
         {
             await Task.Run(() =>
@@ -123,12 +145,13 @@ public partial class MainWindow : Window
                 f.RefreshState();
                 Folders.Remove(f);
             }
+            SaveFolders();
             RefreshAll();
         }
         catch (System.Exception ex)
         {
-            MessageBox.Show($"恢复失败：{ex.Message}\n（该文件夹保留在列表中，未移除）",
-                "移除失败", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show(string.Format(Lang.T("msgRestoreFail"), ex.Message),
+                Lang.T("removeFailTitle"), MessageBoxButton.OK, MessageBoxImage.Warning);
         }
         finally
         {
@@ -141,22 +164,23 @@ public partial class MainWindow : Window
         if ((sender as Button)?.Tag is not ManagedFolder f) return;
 
         var r = MessageBox.Show(
-            $"将从列表移除该文件夹，并先恢复其文件（解密已加密内容、取消隐藏）。\n{f.Path}\n\n继续？",
-            "移除并恢复", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            string.Format(Lang.T("dlgRestoreMsg"), f.Path),
+            Lang.T("dlgRestoreTitle"), MessageBoxButton.YesNo, MessageBoxImage.Question);
         if (r != MessageBoxResult.Yes) return;
 
-        ShowBusy("正在恢复并移除…");
+        ShowBusy("busyRestore");
         try
         {
             await Task.Run(() => RestoreFolder(f));
             f.RefreshState();
             Folders.Remove(f);
+            SaveFolders();
             RefreshAll();
         }
         catch (System.Exception ex)
         {
-            MessageBox.Show($"恢复失败：{ex.Message}\n（该文件夹保留在列表中，未移除）",
-                "移除失败", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show(string.Format(Lang.T("msgRestoreFail"), ex.Message),
+                Lang.T("removeFailTitle"), MessageBoxButton.OK, MessageBoxImage.Warning);
         }
         finally
         {
@@ -173,13 +197,12 @@ public partial class MainWindow : Window
         if (f.IsEncrypted)
         {
             if (string.IsNullOrEmpty(Session.Password))
-                throw new InvalidOperationException($"会话密码缺失，无法解密：{f.Path}（请重新登录后再移除）");
-            _cryptoMode = "解密";
+                throw new InvalidOperationException(string.Format(Lang.T("restoreNoPwd"), f.Path));
+            _busyKey = "busyDecrypt";
             FolderCrypto.Decrypt(f.Path, Session.Password, _cryptoProgress);
         }
         if (f.IsHidden)
         {
-            _cryptoMode = "显示";
             FileHider.Show(f.Path);
         }
     }
@@ -218,7 +241,7 @@ public partial class MainWindow : Window
             });
             added++;
         }
-        if (added > 0) RefreshAll();
+        if (added > 0) { SaveFolders(); RefreshAll(); }
     }
 
     private void RowToggleHide_Click(object sender, RoutedEventArgs e)
@@ -239,10 +262,10 @@ public partial class MainWindow : Window
     private async void RowToggleEnc_Click(object sender, RoutedEventArgs e)
     {
         if ((sender as Button)?.Tag is not ManagedFolder f) return;
-        if (string.IsNullOrEmpty(Session.Password)) { MessageBox.Show("会话密码缺失，请重新登录。"); return; }
+        if (string.IsNullOrEmpty(Session.Password)) { MessageBox.Show(Lang.T("msgNoSession")); return; }
 
-        _cryptoMode = f.IsEncrypted ? "解密" : "加密";
-        ShowBusy($"正在{_cryptoMode}…");
+        _busyKey = f.IsEncrypted ? "busyDecrypt" : "busyEncrypt";
+        ShowBusy(_busyKey);
         try
         {
             await Task.Run(() =>
@@ -265,13 +288,32 @@ public partial class MainWindow : Window
         if (FolderList.SelectedItems.Count > 0)
             return FolderList.SelectedItems.Cast<ManagedFolder>().ToList();
 
-        MessageBox.Show("请先勾选要操作的文件夹（每行左侧的勾选框，可多选），或按住 Ctrl/Shift 在列表中多选，再点击工具栏按钮。",
-            "未选择文件夹", MessageBoxButton.OK, MessageBoxImage.Information);
+        MessageBox.Show(Lang.T("msgSelectTarget"),
+            Lang.T("appTitle"), MessageBoxButton.OK, MessageBoxImage.Information);
         return new List<ManagedFolder>();
     }
 
     private void UpdateStatus()
-        => StatusText.Text = $"共 {Folders.Count} 个文件夹";
+        => StatusText.Text = string.Format(Lang.T("statusCount"), Folders.Count);
+
+    /// <summary>启动时从 %LOCALAPPDATA%\HopeFileLocker\folders.json 载入托管列表，并重算隐藏/加密状态。</summary>
+    private void LoadFolders()
+    {
+        foreach (var p in FolderListStore.Load())
+        {
+            Folders.Add(new ManagedFolder
+            {
+                Path = p,
+                IsFile = File.Exists(p),
+                IsHidden = FileHider.IsHidden(p),
+                IsEncrypted = FolderCrypto.IsEncrypted(p)
+            });
+        }
+    }
+
+    /// <summary>把当前托管路径列表持久化到磁盘。</summary>
+    private void SaveFolders()
+        => FolderListStore.Save(Folders.Select(f => f.Path));
 
     private void RefreshAll()
     {
@@ -279,9 +321,10 @@ public partial class MainWindow : Window
         UpdateStatus();
     }
 
-    private void ShowBusy(string text)
+    private void ShowBusy(string key)
     {
-        BusyText.Text = text;
+        _busyKey = key;
+        BusyText.Text = Lang.T(key);
         BusyOverlay.Visibility = Visibility.Visible;
         ((Storyboard)BusyOverlay.FindResource("SpinStoryboard")).Begin();
     }
@@ -296,6 +339,6 @@ public partial class MainWindow : Window
     {
         var name = string.IsNullOrEmpty(p.FileName) ? "" : Path.GetFileName(p.FileName);
         var idx = p.Total > 0 ? p.Current + 1 : 1;
-        BusyText.Text = $"{_cryptoMode}中… ({idx}/{p.Total})\n{name}";
+        BusyText.Text = $"{Lang.T(_busyKey)} ({idx}/{p.Total})\n{name}";
     }
 }

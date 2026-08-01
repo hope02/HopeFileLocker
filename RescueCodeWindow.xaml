@@ -9,15 +9,15 @@
                 <DropShadowEffect BlurRadius="14" ShadowDepth="3" Color="#0F1419" Opacity="0.10"/>
             </Border.Effect>
             <StackPanel>
-                <TextBlock Text="你的救援码" FontSize="16" FontWeight="Bold" Foreground="#0F1B2D"/>
+                <TextBlock x:Name="HeaderText" Text="你的救援码" FontSize="16" FontWeight="Bold" Foreground="#0F1B2D"/>
                 <TextBlock x:Name="TipText" FontSize="12" Foreground="#6B7280" TextWrapping="Wrap"
                            Margin="0,8,0,12"/>
                 <TextBox x:Name="CodeBox" IsReadOnly="True" FontFamily="Consolas" FontSize="15"
                          Padding="10" BorderBrush="#E6E9EF" BorderThickness="1" Background="#F4F6FB"
                          TextWrapping="Wrap"/>
-                <TextBlock Text="请抄写或截图保存。关闭后将不再显示；遗忘登录密码时凭它找回，且已加密的文件不会丢失。"
+                <TextBlock x:Name="SaveHint" Text="请抄写或截图保存。关闭后将不再显示；遗忘登录密码时凭它找回，且已加密的文件不会丢失。"
                            FontSize="11" Foreground="#9AA3AF" TextWrapping="Wrap" Margin="0,10,0,0"/>
-                <Button Content="我已保存" Width="100" Height="36" HorizontalAlignment="Right"
+                <Button x:Name="SavedBtn" Content="我已保存" Width="100" Height="36" HorizontalAlignment="Right"
                         Margin="0,14,0,0" Click="Close_Click"
                         Background="#1A5FD0" Foreground="White" BorderThickness="0" Cursor="Hand"/>
             </StackPanel>

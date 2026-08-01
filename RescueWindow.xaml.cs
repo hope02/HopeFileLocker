@@ -13,6 +13,17 @@ public partial class RescueWindow : Window
     public RescueWindow()
     {
         InitializeComponent();
+        ApplyLocalization();
+        Lang.Changed += () => ApplyLocalization();
+    }
+
+    private void ApplyLocalization()
+    {
+        Title = Lang.T("rescueTitle");
+        HeaderText.Text = Lang.T("rescueHeader");
+        MethodText.Text = Lang.T("rescueMethod1");
+        RescueOkBtn.Content = Lang.T("rescueOk");
+        CancelBtn.Content = Lang.T("rescueCancel");
     }
 
     private void CodeBox_KeyDown(object sender, KeyEventArgs e)
@@ -33,7 +44,7 @@ public partial class RescueWindow : Window
         }
         else
         {
-            ErrorText.Text = "救援码不正确，请检查后重试。";
+            ErrorText.Text = Lang.T("rescueErrWrong");
         }
     }
 
