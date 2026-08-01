@@ -16,3 +16,8 @@ obj/
 # OS files
 Thumbs.db
 Desktop.ini
+
+# 发布产物（不要提交到仓库）
+/publish/
+/installer-output/
+/*.zip
